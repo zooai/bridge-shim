@@ -1,0 +1,90 @@
+# Zoo Bridge — tenant configuration.
+#
+# Mounted at /etc/bridge/tenant.yaml in the K8s deployment and passed
+# to the upstream bridge binary via --tenant-config /etc/bridge/tenant.yaml.
+
+brand:
+  name:         "Zoo Bridge"
+  slug:         "zoo-bridge"
+  primaryColor: "#00d97e"
+  logoURL:      "/logo.svg"
+  faviconURL:   "/icon.svg"
+  docsURL:      "https://docs.zoo.network"
+  title:        "Zoo Bridge"
+
+# Zoo EVM mainnet chainId.
+network:
+  id:          200200
+  name:        "Zoo Mainnet"
+  rpcURL:      "https://rpc.zoo.network"
+  explorerURL: "https://explorer.zoo.network"
+
+iam:
+  endpoint:     "https://zoo.id"
+  clientID:     "zoo-bridge"
+  organization: "zoo"
+
+kms:
+  endpoint:    "https://kms.zoo.network"
+  projectID:   "zoo-bridge"
+  environment: "prod"
+
+mpc:
+  url:          "http://mpc-node-0.mpc-node-headless.zoo-mpc.svc:9800"
+  orgID:        "zoo-bridge"
+  dashboardURL: "http://mpc-dashboard.zoo-mpc.svc:8081"
+  operators:
+    - "zoo-mpc-node-0"
+    - "zoo-mpc-node-1"
+    - "zoo-mpc-node-2"
+    - "zoo-mpc-node-3"
+    - "zoo-mpc-node-4"
+  threshold: 3
+
+# Zoo's bridge is primarily internal (Zoo L1 destination), so
+# strict-pq is the default.
+pqProfile: "strict-pq"
+
+supportedChains: ["eth", "btc", "sol", "ton", "xrp", "dot", "zoo"]
+
+basketAllowlist:
+  USD: ["USDC", "USDT", "DAI"]
+  BTC: ["BTC"]
+  ETH: ["ETH"]
+  SOL: ["SOL"]
+  TON: ["TON"]
+  XRP: ["XRP"]
+  DOT: ["DOT"]
+
+feeReceiverAddr: "0xdEaD000000000000000000000000000000000000"
+
+domain: "bridge.zoo.network"
+
+releasePool:
+  evm:
+    size:             10
+    mintNetwork:      "ZOO_MAINNET"
+    balanceThreshold: "100000000000000000"
+  sol:
+    size:             5
+    mintNetwork:      "SOLANA_MAINNET"
+    balanceThreshold: "1000000000"
+  btc:
+    size:             5
+    mintNetwork:      "BITCOIN_MAINNET"
+    balanceThreshold: "100000"
+  xrp:
+    size:             5
+    mintNetwork:      "XRP_MAINNET"
+    balanceThreshold: "10000000"
+  dot:
+    size:             3
+    mintNetwork:      "POLKADOT_MAINNET"
+    balanceThreshold: "100000000000"
+  ton:
+    size:             5
+    mintNetwork:      "TON_MAINNET"
+    balanceThreshold: "1000000000"
+
+listen:             ":8080"
+networksConfigPath: "/etc/bridge/networks.yaml"

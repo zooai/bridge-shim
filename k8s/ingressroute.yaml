@@ -1,0 +1,16 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: zoo-bridge
+  namespace: zoo-bridge
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`bridge.zoo.network`)
+      kind: Rule
+      services:
+        - name: zoo-bridge
+          port: 80
+  tls:
+    secretName: zoo-bridge-tls
