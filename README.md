@@ -1,45 +1,62 @@
-# Zoo Bridge
+# Zoo Bridge — fork template
 
-Tenant deployment of the canonical bridge — `bridge.zoo.network`.
+Reference configuration + deployment scaffold for white-label bridge
+consumers. **NOT** a separate deployment image. Zoo's own production
+bridge runs the upstream `ghcr.io/luxfi/bridge` image directly with
+tenant config supplied at runtime via env + ConfigMap.
 
-> Not a "shim" — Zoo Bridge tenant deployment. Runtime binary IS
-> `ghcr.io/luxfi/bridge` (the OSS upstream), composed at deploy time
-> via tenant.yaml. **Rename target: `zooai/bridge-shim` → `zooai/bridge`.**
+## What lives here
 
-This repo ships:
+| File | Purpose |
+|---|---|
+| `tenant.yaml` | Zoo Bridge config — brand, IAM endpoint `zoo.id`, KMS endpoint `kms.zoo.network`, MPC cluster, strict-pq profile, supported chains, basket allowlist, fee receiver, domain `bridge.zoo.network`, per-family release-pool sizing. |
+| `contracts/tenant.json` + `contracts/Deploy.sh` | Wraps `@luxfi/standard v1.7.5+`'s `DeployTenant.s.sol` with the Zoo manifest. |
+| `k8s/` | Deployment / Service / IngressRoute / ConfigMap manifests. |
+| `tenant_test.go` | Validates `tenant.yaml` against the upstream `github.com/luxfi/bridge/pkg/tenant` schema. |
+| `Dockerfile` | **Reference only.** Documents how a downstream fork that needs its own image (compliance bake-in like Liquidity) would assemble one. Zoo production does not build or publish this image. |
 
-- `tenant.yaml` — declarative Zoo Bridge configuration (brand, IAM
-  endpoint `zoo.id`, KMS endpoint `kms.zoo.network`, MPC cluster,
-  strict-pq profile, supported chains, basket allowlist, fee receiver,
-  domain `bridge.zoo.network`, per-family release-pool sizing).
-- `Dockerfile` — overlays `tenant.yaml` on top of the upstream image.
-- `contracts/tenant.json` + `contracts/Deploy.sh` — wraps
-  `@luxfi/standard v1.7.5+`'s `DeployTenant.s.sol`.
-- `k8s/` — Deployment, Service, IngressRoute, ConfigMap manifests.
-- `tenant_test.go` — validates `tenant.yaml` against the upstream schema.
+## Production deployment — config, not image
 
-## Image tagging convention
+Zoo production pulls the canonical upstream image and injects tenant
+config at deploy time via ConfigMap:
 
-Tag the tenant image by the upstream version it composes:
-
-```
-ghcr.io/zooai/bridge:v1.1.40-zoo
-```
-
-NOT independent semver. The Dockerfile `FROM` pin IS the contract.
-Legacy `v0.1.x` / `v0.2.x` tags remain in history; new deploys use
-the `vX.Y.Z-zoo` form.
-
-## Deploy
-
-```bash
-go test ./...
-docker build -t ghcr.io/zooai/bridge:v1.1.40-zoo .
-kubectl apply -k k8s/
-ZOO_PRIVATE_KEY=0x... ./contracts/Deploy.sh https://rpc.zoo.network
+```yaml
+spec:
+  template:
+    spec:
+      containers:
+        - name: bridge
+          image: ghcr.io/luxfi/bridge:v1.1.40        # clean upstream semver
+          args: ["--tenant-config", "/etc/bridge/tenant.yaml"]
+          volumeMounts:
+            - name: tenant-config
+              mountPath: /etc/bridge
+      volumes:
+        - name: tenant-config
+          configMap:
+            name: zoo-bridge-tenant
 ```
 
-## Upstream pins
+ConfigMap rotation is hot-reloadable. Same image runs testnet, mainnet,
+dev — environments differ only by ConfigMap.
 
-- `ghcr.io/luxfi/bridge`: v1.1.40
-- `@luxfi/standard`: v1.7.5
+## Why this repo exists
+
+This is the **template** for any community white-label consumer:
+
+```
+git clone https://github.com/zooai/bridge
+# edit tenant.yaml for your brand + endpoints
+# point your k8s manifests at ghcr.io/luxfi/bridge:vX.Y.Z
+# done.
+```
+
+If a downstream needs to bake config into a dedicated image (Liquidity
+pattern: US ATS/BD/TA → region-locked GAR image, config baked in), the
+`Dockerfile` here shows the minimal scaffold.
+
+## Upstream pin
+
+`luxfi/bridge` `v1.1.40` — image at `ghcr.io/luxfi/bridge:v1.1.40`.
+Bump it in `k8s/deployment.yaml` to pick up new OSS features. Clean
+semver — no tenant suffix.
