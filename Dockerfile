@@ -1,5 +1,5 @@
 # Zoo Bridge production image.
-FROM ghcr.io/luxfi/bridge:v2.0.0
+FROM ghcr.io/luxfi/bridge:v1.1.40
 
 COPY tenant.yaml /etc/bridge/tenant.yaml
 
