@@ -55,9 +55,9 @@ unchanged. Zoo identity comes from the ConfigMap created from
    bridge.zoo.network     bridge.hanzo.network    bridge.{anyone}.tld
 ```
 
-Exception: `/bridge` does bake config into a region-locked
-GAR image — US ATS/BD/TA compliance requires no cross-region config
-mutations. Everywhere else, runtime config wins.
+Exception: regulated downstream variants (US ATS/BD/TA) may bake
+config into a region-locked GAR image because compliance requires
+no cross-region config mutations. Everywhere else, runtime config wins.
 
 ## Image tagging convention
 
