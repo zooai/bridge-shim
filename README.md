@@ -1,5 +1,7 @@
 # Zoo Bridge
 
+[![Open in Hanzo](https://hanzo.app/badges/open-in-hanzo.svg)](https://hanzo.app/dev/open?repo=github.com/zooai/bridge-shim&ref=main&action=open) [![Edit with Hanzo](https://hanzo.app/badges/edit-with-hanzo.svg)](https://hanzo.app/dev/open?repo=github.com/zooai/bridge-shim&ref=main&action=edit) [![Deploy with Hanzo](https://hanzo.app/badges/deploy-with-hanzo.svg)](https://hanzo.app/dev/open?repo=github.com/zooai/bridge-shim&ref=main&action=deploy)
+
 Zoo's tenant configuration bundle for the canonical Lux bridge
 (`bridge.zoo.network`). Runs the standard `ghcr.io/luxfi/bridge`
 image; everything Zoo-specific is config, not code.
